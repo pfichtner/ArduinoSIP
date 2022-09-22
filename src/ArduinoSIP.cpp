@@ -89,6 +89,7 @@ bool Sip::Dial(const char *DialNr, const char *DialDesc) {
   Invite();
   iDialRetries++;
   iRingTime = Millis();
+  iSignal = '\0';
 
   return true;
 }
@@ -180,6 +181,7 @@ void Sip::HandleUdpPacket(const char *p) {
   else if (strstr(p, "INFO") == p)
   {
     iLastCSeq = GrepInteger(p, "\nCSeq: ");
+    iSignal = GrepChar(p, "\nSignal=");
     Ok(p);
   }
 
@@ -275,17 +277,24 @@ bool Sip::ParseReturnParams(const char *p) {
 }
 
 
+const char* Sip::Grep(const char *p, const char *psearch) {
+
+  const char *pc = strstr(p, psearch);
+  return (pc) ? pc + strlen(psearch) : NULL;
+}
+
+
 int Sip::GrepInteger(const char *p, const char *psearch) {
 
-  int param = -1;
-  const char *pc = strstr(p, psearch);
+  const char *pc = Grep(p, psearch);
+  return (pc) ? atoi(pc) : -1;
+}
 
-  if ( pc )
-  {
-    param = atoi(pc + strlen(psearch));
-  }
-  
-  return param;
+
+const char Sip::GrepChar(const char *p, const char *psearch) {
+
+  const char *pc = Grep(p, psearch);
+  return (pc) ? pc[0] : '\0';
 }
 
 
@@ -326,6 +335,7 @@ void Sip::Cancel(int cseq) {
   AddSipLine("Content-Length: 0");
   AddSipLine("");
   SendUdp();
+  iSignal = '\0';
 }
 
 
@@ -343,6 +353,7 @@ void Sip::Bye(int cseq) {
   AddSipLine("Content-Length: 0");
   AddSipLine("");
   SendUdp();
+  iSignal = '\0';
 }
 
 

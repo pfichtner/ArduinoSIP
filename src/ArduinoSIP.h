@@ -57,7 +57,8 @@ class Sip
 	void        Init(const char *SipIp, int SipPort, const char *MyIp, int MyPort, const char *SipUser, const char *SipPassWd, int MaxDialSec = 10);
     bool        Dial(const char *DialNr, const char *DialDesc = "");
 	void		Processing(char *pBuf, size_t lBuf);
-    bool        IsBusy() { return iRingTime != 0; }	
+    bool        IsBusy() { return iRingTime != 0; }
+    char        GetSignal() { return iSignal; }
 	
   private:
     char       *pbuf;
@@ -82,6 +83,7 @@ class Sip
     uint32_t    iMaxTime;
     int         iDialRetries;
     int         iLastCSeq;
+    char        iSignal;
     
 	WiFiUDP 	Udp;
 	
@@ -90,7 +92,9 @@ class Sip
     bool        AddCopySipLine(const char *p, const char *psearch);
     bool        ParseParameter(char *dest, int destlen, const char *name, const char *line, char cq = '\"');
     bool        ParseReturnParams(const char *p);
+    const char* Grep(const char *p, const char *psearch);
     int         GrepInteger(const char *p, const char *psearch);
+    const char  GrepChar(const char *p, const char *psearch);
     void        Ack(const char *pIn);
     void        Cancel(int seqn);
     void        Bye(int cseq);
